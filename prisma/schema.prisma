@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model orang {
+  id_orang          Int       @id @default(autoincrement())
+  nik               String?   @db.VarChar(50)
+  nama_lengkap      String?   @db.VarChar(50)
+  jenis_kelamin     String?   @db.Char(1)
+  tanggal_lahir     DateTime? @db.Date
+  pemohon_dusun     String?   @db.VarChar(50)
+  pemohon_desa      String?   @db.VarChar(50)
+  pemohon_kecamatan String?   @db.VarChar(50)
+  no_hp             String?   @db.VarChar(20)
+  email             String?   @db.VarChar(50)
+  usaha             usaha[]
+}
+
+model jenis {
+  id_jenis Int     @id @default(autoincrement())
+  nama     String  @db.VarChar(50)
+  usaha    usaha[]
+}
+
+model usaha {
+  id_usaha            Int     @id @default(autoincrement())
+  id_orang            Int
+  bidang_usaha        Int
+  luas_lahan          Float?
+  usaha_dusun         String? @db.VarChar(200)
+  usaha_desa          String? @db.VarChar(200)
+  usaha_kecamatan     String? @db.VarChar(200)
+  usaha_kode_pos      String? @db.VarChar(200)
+  status              Int?    @db.TinyInt
+  nama_usaha          String? @db.VarChar(100)
+  modal               Float?
+  jumlah_tenaga_kerja Int?
+  jenis_produk        Int?    @db.TinyInt
+  kapasitas_penjualan Float?
+  nama_pendata        String? @db.VarChar(100)
+  oss_email           String? @db.VarChar(100)
+  oss_username        String? @db.VarChar(100)
+  oss_password        String? @db.VarChar(100)
+  keterangan          String? @db.Text
+  id_gambar           Int?
+  orang               orang   @relation(fields: [id_orang], references: [id_orang], onDelete: Cascade, map: "usaha_ibfk_1")
+  jenis               jenis   @relation(fields: [bidang_usaha], references: [id_jenis], onDelete: Cascade, map: "usaha_ibfk_2")
+  gambar              gambar? @relation(fields: [id_gambar], references: [id_gambar], map: "usaha_ibfk_3")
+
+  @@index([bidang_usaha], map: "bidang_usaha")
+  @@index([id_orang], map: "id_orang")
+  @@index([id_gambar], map: "id_gambar")
+}
+
+model user {
+  id_user  Int    @id @default(autoincrement())
+  username String @unique(map: "username") @db.VarChar(50)
+  password String @db.VarChar(100)
+}
+
+model gambar {
+  id_gambar Int      @id @default(autoincrement())
+  nama      String?  @db.VarChar(50)
+  nama_asli String?  @db.VarChar(50)
+  mime      String?  @db.VarChar(75)
+  path      String?  @db.VarChar(200)
+  berita    berita[]
+  usaha     usaha[]
+}
+
+model berita {
+  id_berita  Int      @id @default(autoincrement())
+  id_gambar  Int?
+  judul      String?  @db.VarChar(100)
+  isi        String?  @db.Text
+  created_at DateTime @default(now()) @db.DateTime(0)
+  gambar     gambar?  @relation(fields: [id_gambar], references: [id_gambar], map: "berita_ibfk_1")
+
+  @@index([id_gambar], map: "id_gambar")
+}
